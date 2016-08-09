@@ -1,0 +1,715 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+
+    Copyright (C) 2002-2012 "SYSNET International, Inc."
+    support@sysnetint.com [http://www.sysnetint.com]
+
+    This file is part of OpenEMPI.
+
+    OpenEMPI is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+            http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd"
+	default-lazy-init="true">
+
+	<!--
+		===================================================================
+	-->
+	<!--
+		AOP: Configuration and Aspects
+	-->
+	<!--
+		===================================================================
+	-->
+	<aop:config>
+		<aop:advisor id="userManagerTx" advice-ref="userManagerTxAdvice"
+			pointcut="execution(* *..service.UserManager.*(..))" order="0" />
+		<aop:advisor id="userManagerSecurity" advice-ref="userSecurityAdvice"
+			pointcut="execution(* *..service.UserManager.saveUser(..))" order="1" />
+		<aop:advisor id="managerTx" advice-ref="txAdvice"
+			pointcut="execution(* *..service.*Manager.*(..))" order="2" />
+	</aop:config>
+
+	<!-- Enable @Transactional support -->
+	<tx:annotation-driven />
+
+	<!-- Enable @AspectJ support -->
+	<aop:aspectj-autoproxy />
+
+	<!-- Enable @Configured support -->
+	<aop:spring-configured />
+
+	<tx:advice id="txAdvice">
+		<tx:attributes>
+			<!-- Read-only commented out to make things easier for end-users -->
+			<!-- http://issues.appfuse.org/browse/APF-556 -->
+			<!--tx:method name="get*" read-only="true"/-->
+			<tx:method name="*" />
+		</tx:attributes>
+	</tx:advice>
+
+	<tx:advice id="userManagerTxAdvice">
+		<tx:attributes>
+			<tx:method name="save*" rollback-for="UserExistsException" />
+		</tx:attributes>
+	</tx:advice>
+
+	<bean id="userSecurityAdvice" class="org.openhie.openempi.service.UserSecurityAdvice" />
+
+	<!--
+		===================================================================
+	-->
+	<!--
+		Mail: Sender and Velocity configuration
+	-->
+	<!--
+		===================================================================
+	-->
+	<bean id="mailEngine" class="org.openhie.openempi.service.MailEngine">
+		<property name="mailSender" ref="mailSender" />
+		<property name="velocityEngine" ref="velocityEngine" />
+		<property name="from" value="${mail.default.from}" />
+	</bean>
+
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="${mail.host}" />
+		<property name="defaultEncoding" value="UTF-8" />
+		<!-- Uncomment if you need to authenticate with your SMTP Server -->
+		<!--
+			property name="username" value="${mail.username}"/> <property
+			name="password" value="${mail.password}"/> <property
+			name="javaMailProperties"> <value> mail.smtp.auth=true </value>
+			</property
+		-->
+	</bean>
+
+	<!-- Configure Velocity for sending e-mail -->
+	<bean id="velocityEngine"
+		class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+		<property name="velocityProperties">
+			<props>
+				<prop key="resource.loader">class</prop>
+				<prop key="class.resource.loader.class">
+					org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+				</prop>
+				<prop key="velocimacro.library"></prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="mailMessage" class="org.springframework.mail.SimpleMailMessage"
+		scope="prototype">
+		<property name="from" value="${mail.default.from}" />
+	</bean>
+
+	<!--
+		===================================================================
+	-->
+	<!--
+		Security class from Spring Security - used to configure Password
+	-->
+	<!--
+		Encryption in UserManagerImpl. Can override in security.xml.
+	-->
+	<!--
+		===================================================================
+	-->
+	<bean id="passwordEncoder"
+		class="org.springframework.security.providers.encoding.ShaPasswordEncoder" />
+
+	<!--
+		===================================================================
+	-->
+	<!--
+		Managers: For accessing DAOs
+	-->
+	<!--
+		===================================================================
+	-->
+	<bean id="manager" class="org.openhie.openempi.service.impl.UniversalManagerImpl">
+		<property name="dao" ref="universalDao" />
+	</bean>
+
+	<bean id="lookupManager" class="org.openhie.openempi.service.impl.LookupManagerImpl">
+		<property name="lookupDao" ref="lookupDao" />
+	</bean>
+
+	<bean id="userManager" class="org.openhie.openempi.service.impl.UserManagerImpl">
+		<property name="userDao" ref="userDao" />
+		<property name="roleDao" ref="roleDao" />
+		<property name="userSessionDao" ref="userSessionDao" />
+		<property name="passwordEncoder" ref="passwordEncoder" />
+	</bean>
+<!-- 
+<bean id="daoAuthenticationProvider"
+class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+<property name="userDetailsService" ref="inMemoryDaoImpl"/>
+<property name="saltSource" ref bean="saltSource"/>
+<property name="passwordEncoder" ref="passwordEncoder"/>
+</bean>
+
+<bean id="daoAuthenticationProvider"
+class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+<property name="userDetailsService" ref="userDetailsService"/>
+<property name="userCache" ref="userCache"/>
+</bean>
+
+<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+	<property name="configLocation" value="classpath:/ehcache-failsafe.xml"/>
+</bean>
+<bean id="userCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+<property name="cacheManager" ref="cacheManager"/>
+<property name="cacheName" value="userCache"/>
+</bean>
+<bean id="userCache" class="org.springframework.security.providers.dao.cache.EhCacheBasedUserCache">
+<property name="cache" ref="userCacheBackend"/>
+</bean>
+
+<bean id="userDetailsService" class="org.springframework.security.userdetails.jdbc.JdbcDaoImpl">
+<property name="dataSource" ref="dataSource"/>
+<property name="enableAuthorities" value="false"/>
+<property name="enableGroups" value="true"/>
+<property name="usersByUsernameQuery" value="$$ TO BE DETERMINED $$"/>
+<property name="authoritiesByUsernameQuery" value="$$ TO BE DETERMINED $$"/>
+<property name="groupAuthoritiesByUsernameQuery" value="$$ TO BE DETERMINED $$"/>
+</bean>
+
+
+ -->
+	<bean id="roleManager" class="org.openhie.openempi.service.impl.RoleManagerImpl">
+		<property name="roleDao" ref="roleDao" />
+	</bean>
+
+	<bean id="configuration" class="org.openhie.openempi.configuration.Configuration">
+		<property name="configFile" value="/mpi-config.xml" />
+	</bean>
+
+	<bean id="context" class="org.openhie.openempi.context.Context">
+		<property name="auditEventService" ref="auditEventService" />
+		<property name="configuration" ref="configuration" />
+		<property name="notificationService" ref="notificationService" />
+		<property name="entityDefinitionManagerService" ref="entityDefinitionManagerService" />
+		<property name="recordManagerService" ref="recordManagerService" />
+		<property name="recordQueryService" ref="recordQueryService" />
+		<property name="personManagerService" ref="personManagerServiceAdapter" />
+		<property name="personQueryService" ref="personQueryServiceAdapter" />
+		<property name="identifierDomainService" ref="identifierDomainService" />
+		<property name="reportService" ref="reportService" />
+		<property name="stringComparisonService" ref="stringComparisonService" />
+		<property name="transformationService" ref="transformationService" />
+		<property name="userManager" ref="userManager" />
+		<property name="validationService" ref="validationService" />
+		<property name="dataProfileService" ref="dataProfileService" />
+		<property name="entityValidationService" ref="entityValidationService" />
+		<property name="jobQueueService" ref="jobQueueService" />
+	</bean>
+
+	<bean id="personManagerServiceAdapter" class="org.openhie.openempi.service.impl.PersonManagerServiceAdapter">
+		<property name="personEntityName" value="person" />
+		<property name="entityDefinitionService" ref="entityDefinitionManagerService"/>
+		<property name="recordQueryService" ref="recordQueryService"/>
+		<property name="recordManagerService" ref="recordManagerService"/>
+		<property name="personDao" ref="personDao" />
+		<property name="identifierDomainDao" ref="identifierDomainDao" />
+	</bean>
+	
+	<bean id="entityDefinitionManagerService"
+		class="org.openhie.openempi.entity.impl.EntityDefinitionManagerServiceImpl">
+		<property name="entityDefinitionDao" ref="entityDefinitionDao" />
+		<property name="entityDao" ref="entityDao"/>
+	</bean>
+
+	<bean id="recordManagerService"
+		class="org.openhie.openempi.entity.impl.RecordManagerServiceImpl">
+		<property name="identifierDomainDao" ref="identifierDomainDao" />
+		<property name="entityDao" ref="entityDao"/>
+		<property name="entityDefinitionService" ref="entityDefinitionManagerService"/>
+		<property name="entityCacheManager" ref="entityCacheManager"/>
+	</bean>
+	
+	<bean id="recordQueryService"
+		class="org.openhie.openempi.entity.impl.RecordQueryServiceImpl">
+		<property name="identifierDomainDao" ref="identifierDomainDao" />
+		<property name="entityDao" ref="entityDao"/>
+		<property name="entityDefinitionService" ref="entityDefinitionManagerService"/>
+		<property name="entityCacheManager" ref="entityCacheManager"/>
+	</bean>
+	
+	<bean id="forEachRecordConsumer"
+		class="org.openhie.openempi.entity.impl.ForEachRecordConsumerImpl"
+		scope="prototype">
+		<property name="recordProducer" ref="recordProducer" />
+	</bean>
+	
+	<bean id="dirtyRecordMatcher"
+		class="org.openhie.openempi.entity.impl.DirtyRecordMatcher">
+		<property name="identifierDomainDao" ref="identifierDomainDao" />		
+		<property name="entityDao" ref="entityDao"/>
+		<property name="maxRecordsPerRun" value="1000"/>
+		<property name="username" value="admin"/>
+		<property name="password" value="admin"/>
+		
+	</bean>
+
+	<bean id="recordLinkResourceServiceImpl"
+		class="org.openhie.openempi.service.impl.RecordLinkResourceServiceImpl">
+	</bean>
+
+	<bean id="recordResourceServiceImpl"
+		class="org.openhie.openempi.service.impl.RecordResourceServiceImpl">
+	</bean>
+
+	<bean id="securityResourceServiceImpl"
+		class="org.openhie.openempi.service.impl.SecurityResourceServiceImpl">
+	</bean>
+	
+	<bean id="personManagerResourceServiceImpl"
+		class="org.openhie.openempi.service.impl.PersonManagerResourceServiceImpl">
+	</bean>
+	
+	<bean id="personQueryResourceServiceImpl"
+		class="org.openhie.openempi.service.impl.PersonQueryResourceServiceImpl">
+	</bean>
+	
+	<bean id="personQueryServiceAdapter" class="org.openhie.openempi.service.impl.PersonQueryServiceAdapter">
+		<property name="personEntityName" value="person" />
+		<property name="entityDefinitionService" ref="entityDefinitionManagerService"/>
+		<property name="recordQueryService" ref="recordQueryService"/>
+		<property name="personDao" ref="personDao" />
+		<property name="identifierDomainDao" ref="identifierDomainDao" />
+	</bean>
+	
+	<bean id="identifierDomainService"
+		class="org.openhie.openempi.service.impl.IdentifierDomainServiceImpl">
+		<property name="identifierDomainDao" ref="identifierDomainDao" />
+	</bean>
+
+	<bean id="jobQueueService"
+		class="org.openhie.openempi.jobqueue.impl.JobQueueServiceImpl">
+		<property name="jobEntryDao" ref="jobEntryDao" />
+	</bean>
+
+	<bean id="jobQueueProcessor"
+		class="org.openhie.openempi.jobqueue.impl.JobQueueProcessor">
+		<property name="jobEntryDao" ref="jobEntryDao" />
+		<property name="username" value="admin"/>
+		<property name="password" value="admin"/>
+	</bean>
+
+	<bean id="userSessionRemover"
+		class="org.openhie.openempi.service.impl.UserSessionRemover">
+		<property name="userSessionDao" ref="userSessionDao" />
+		<property name="username" value="admin"/>
+		<property name="password" value="admin"/>
+	</bean>
+
+	<bean id="fileImportJobHandler"
+		class="org.openhie.openempi.jobqueue.impl.FileImportJobTypeHandler">
+		<property name="username" value="admin"/>
+		<property name="password" value="admin"/>
+	</bean>
+
+	<bean id="blockingInitializationJobHandler"
+		class="org.openhie.openempi.jobqueue.impl.BlockingInitializationJobTypeHandler">
+		<property name="username" value="admin"/>
+		<property name="password" value="admin"/>
+	</bean>
+
+	<bean id="matchingAllPairsJobHandler"
+		class="org.openhie.openempi.jobqueue.impl.MatchingTasksJobTypeHandler">
+		<property name="username" value="admin"/>
+		<property name="password" value="admin"/>
+	</bean>
+
+	<bean id="matchingInitializationJobHandler"
+		class="org.openhie.openempi.jobqueue.impl.MatchingTasksJobTypeHandler">
+		<property name="username" value="admin"/>
+		<property name="password" value="admin"/>
+	</bean>
+
+	<bean id="globalIdGenerationJobHandler"
+		class="org.openhie.openempi.jobqueue.impl.GlobalIdGenerationJobTypeHandler">
+		<property name="username" value="admin"/>
+		<property name="password" value="admin"/>
+	</bean>
+
+	<bean id="customFieldGenerationJobHandler"
+		class="org.openhie.openempi.jobqueue.impl.CustomFieldGenerationJobTypeHandler">
+		<property name="username" value="admin"/>
+		<property name="password" value="admin"/>
+	</bean>
+
+	<bean id="dataProfilingJobHandler"
+		class="org.openhie.openempi.jobqueue.impl.DataProfilingJobTypeHandler">
+		<property name="username" value="admin"/>
+		<property name="password" value="admin"/>
+	</bean>
+
+	<bean id="naiveBlockingService"
+		class="org.openhie.openempi.blocking.naive.NaiveBlockingServiceImpl">
+		<property name="entityDao" ref="entityDao" />
+	</bean>
+
+	<bean id="auditEventService" class="org.openhie.openempi.service.impl.AuditEventServiceImpl"
+		init-method="init">
+		<property name="auditEventDao" ref="auditEventDao" />
+		<property name="messageLogDao" ref="messageLogDao" />
+	</bean>
+	
+	<bean id="reportService" class="org.openhie.openempi.report.impl.ReportServiceImpl">
+		<property name="reportDao" ref="reportDao" />
+	</bean>
+	
+	<bean id="validationService" class="org.openhie.openempi.service.impl.ValidationServiceImpl">
+	</bean>
+
+<!--		
+	<bean id="dsgenTrainingDataExtractor" class="org.openhie.openempi.loader.DsgenTrainingDataGenerator">
+	</bean>
+-->
+
+	<bean id="entityRecordDataSource" class="org.openhie.openempi.profiling.EntityRecordDataSource" scope="prototype">
+		<property name="entityDefinitionService" ref="entityDefinitionManagerService"/>
+		<property name="recordBlockSize" value="10000"/>
+	    	<property name="entityDao" ref="entityDao" />
+	</bean>
+	
+	<bean id="dataProfileService" class="org.openhie.openempi.profiling.DataProfileServiceImpl">
+		<property name="dataProfileAttributeDao" ref="dataProfileAttributeDao" />
+	</bean>
+
+	<bean id="dataProfiler" class="org.openhie.openempi.profiling.DataProfiler" scope="prototype">
+		<property name="recordDataSource" ref="entityRecordDataSource"/>
+		<property name="dataProfileAttributeDao" ref="dataProfileAttributeDao"/>
+		<property name="attributeBlockSize" value="0"/>
+	</bean>
+
+	<bean id="jmsConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<property name="brokerURL" value="vm://notificationBroker?create=false"/>
+	</bean>
+
+	<bean id="pooledJmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory"
+		destroy-method="stop">
+		<property name="connectionFactory" ref="jmsConnectionFactory"/>
+	</bean>
+
+	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="pooledJmsConnectionFactory"/>
+	</bean>
+
+	<bean id="addEventTopic" class="org.apache.activemq.command.ActiveMQTopic">
+		<constructor-arg value="add.event.topic"/>
+	</bean>
+
+	<bean id="deleteEventTopic" class="org.apache.activemq.command.ActiveMQTopic">
+		<constructor-arg value="delete.event.topic"/>
+	</bean>
+
+	<bean id="importEventTopic" class="org.apache.activemq.command.ActiveMQTopic">
+		<constructor-arg value="import.event.topic"/>
+	</bean>
+
+	<bean id="mergeEventTopic" class="org.apache.activemq.command.ActiveMQTopic">
+		<constructor-arg value="merge.event.topic"/>
+	</bean>
+
+	<bean id="updateEventTopic" class="org.apache.activemq.command.ActiveMQTopic">
+		<constructor-arg value="update.event.topic"/>
+	</bean>
+
+	<bean id="notificationService" class="org.openhie.openempi.notification.impl.NotificationServiceImpl">
+<!-- 		<property name="brokerService" ref="notificationBroker"/> -->
+		<property name="jmsTemplate" ref="jmsTemplate"/>
+		<property name="topicMap">
+			<map>
+				<entry key="addNotificationEventType" value-ref="addEventTopic"/>
+				<entry key="deleteNotificationEventType" value-ref="deleteEventTopic"/>
+				<entry key="importNotificationEventType" value-ref="importEventTopic"/>
+				<entry key="mergeNotificationEventType" value-ref="mergeEventTopic"/>
+				<entry key="updateNotificationEventType" value-ref="updateEventTopic"/>
+			</map>
+		</property>
+	</bean>
+<!-- 
+
+	Uncomment just this section and the brokerService property on the notificationService
+	entry above if you want to enable the JMS notification service.	
+
+	<brokerService useJmx="false" 
+		xmlns="http://activemq.apache.org/schema/core"
+		brokerName="notificationBroker"
+		dataDirectory="${OPENEMPI_HOME}"
+		id="notificationBroker"
+		persistent="false">
+		
+		<destinationPolicy>
+			<policyMap>
+		        <policyEntries>
+		        	<policyEntry topic=">">
+		        		<pendingMessageLimitStrategy>
+		        			<constantPendingMessageLimitStrategy limit="1000"/>
+		        		</pendingMessageLimitStrategy>
+		        	</policyEntry>
+		        </policyEntries>
+		    </policyMap>
+		</destinationPolicy>
+		
+		<destinations>
+			<topic id="add.event.topic" name="add.event.topic" physicalName="add.event.topic"/>
+			<topic id="delete.event.topic" name="delete.event.topic" physicalName="delete.event.topic"/>
+			<topic id="import.event.topic" name="import.event.topic" physicalName="import.event.topic"/>
+			<topic id="merge.event.topic" name="merge.event.topic" physicalName="merge.event.topic"/>
+			<topic id="update.event.topic" name="update.event.topic" physicalName="update.event.topic"/>
+		</destinations>
+
+		<transportConnectors>
+			<transportConnector uri="vm://notificationBroker?create=false" />
+		</transportConnectors>
+	</brokerService>
+ -->
+ 
+<!-- 
+	<bean id="notificationBroker" class="org.apache.activemq.broker.BrokerService"
+		destroy-method="stop">
+		<property name="brokerName" value="notificationBroker" />
+		<property name="persistent" value="false" />
+		<property name="dataDirectory" value="${OPENEMPI_HOME}" />
+		<property name="useJmx" value="true" />
+		<property name="transportConnectorURIs">
+			<list>
+				<value>tcp://localhost:6888</value>
+				<value>vm://notificationBroker?create=false</value>
+			</list>
+		</property>
+	</bean>
+ -->
+ 
+	<!--  Distance Metrics  -->
+	<bean id="Exact"
+		class="org.openhie.openempi.stringcomparison.metrics.ExactMatchDistanceMetric">
+		<property name="name" value="Exact"/>
+	</bean>
+	<bean id="Jaro"
+		class="org.openhie.openempi.stringcomparison.metrics.JaroDistanceMetric">
+		<property name="name" value="Jaro"/>
+	</bean>
+	<bean id="JaroWinkler"
+		class="org.openhie.openempi.stringcomparison.metrics.JaroWinklerAliasiDistanceMetric">
+		<property name="name" value="JaroWinkler"/>
+	</bean>
+	<bean id="JaroWinklerV2"
+		class="org.openhie.openempi.stringcomparison.metrics.JaroWinklerSimmetricsDistanceMetric">
+		<property name="name" value="JaroWinklerV2"/>
+	</bean>
+	<bean id="Levenshtein"
+		class="org.openhie.openempi.stringcomparison.metrics.LevenshteinDistanceMetric">
+		<property name="name" value="Levenshtein"/>
+	</bean>
+	<bean id="NeedlemanWunsch"
+		class="org.openhie.openempi.stringcomparison.metrics.NeedlemanWunschDistanceMetric">
+		<property name="name" value="NeedlemanWunsch"/>
+	</bean>
+	<bean id="SmithWaterman"
+		class="org.openhie.openempi.stringcomparison.metrics.SmithWatermanDistanceMetric">
+		<property name="name" value="SmithWaterman"/>
+	</bean>
+	<bean id="MongeElkan"
+		class="org.openhie.openempi.stringcomparison.metrics.MongeElkanDistanceMetric">
+		<property name="name" value="MongeElkan"/>
+	</bean>
+	<bean id="Gotoh"
+		class="org.openhie.openempi.stringcomparison.metrics.GotohDistanceMetric">
+		<property name="name" value="Gotoh"/>
+	</bean>
+	<bean id="GotohWindowedAffine"
+		class="org.openhie.openempi.stringcomparison.metrics.GotohWindowedAffineDistanceMetric">
+		<property name="name" value="GotohWindowedAffine"/>
+	</bean>
+	<bean id="Block"
+		class="org.openhie.openempi.stringcomparison.metrics.BlockDistanceMetric">
+		<property name="name" value="Block"/>
+	</bean>
+	<bean id="Soundex"
+		class="org.openhie.openempi.stringcomparison.metrics.SoundexDistanceMetric">
+		<property name="name" value="Soundex"/>
+	</bean>
+	<bean id="Euclidean"
+		class="org.openhie.openempi.stringcomparison.metrics.EuclideanDistanceMetric">
+		<property name="name" value="Euclidean"/>
+	</bean>
+	<bean id="QGrams"
+		class="org.openhie.openempi.stringcomparison.metrics.QGramsDistanceMetric">
+		<property name="name" value="QGrams"/>
+	</bean>
+	<bean id="JaccardString"
+		class="org.openhie.openempi.stringcomparison.metrics.JaccardSimilarityMetricStringVersion">
+		<property name="name" value="JaccardString"/>
+	</bean>
+	<bean id="Cosine"
+		class="org.openhie.openempi.stringcomparison.metrics.CosineSimilarityMetric">
+		<property name="name" value="Cosine"/>
+	</bean>
+	<bean id="DiceString"
+		class="org.openhie.openempi.stringcomparison.metrics.DiceSimilarityMetricStringVersion">
+		<property name="name" value="DiceString"/>
+	</bean>
+	<bean id="Matching"
+		class="org.openhie.openempi.stringcomparison.metrics.MatchingCoefficientMetric">
+		<property name="name" value="Matching"/>
+	</bean>
+	<bean id="Overlap"
+		class="org.openhie.openempi.stringcomparison.metrics.OverlapCoefficientMetric">
+		<property name="name" value="Overlap"/>
+	</bean>
+
+	<bean id="stringComparisonService"
+		class="org.openhie.openempi.stringcomparison.impl.StringComparisonServiceImpl">
+		<property name="distanceMetricTypeMap">
+			<map>
+				<entry key="Exact" value-ref="Exact"/>
+				<entry key="Jaro" value-ref="Jaro"/>
+				<entry key="JaroWinkler" value-ref="JaroWinkler"/>
+				<entry key="JaroWinklerV2" value-ref="JaroWinklerV2"/>
+				<entry key="Levenshtein" value-ref="Levenshtein"/>				
+				<entry key="NeedlemanWunsch" value-ref="NeedlemanWunsch"/>
+				<entry key="SmithWaterman" value-ref="SmithWaterman"/>
+				<entry key="MongeElkan" value-ref="MongeElkan"/>
+				<entry key="Gotoh" value-ref="Gotoh"/>
+				<entry key="GotohWindowedAffine" value-ref="GotohWindowedAffine"/>
+				<entry key="Block" value-ref="Block"/>
+				<entry key="Soundex" value-ref="Soundex"/>
+				<entry key="Euclidean" value-ref="Euclidean"/>
+				<entry key="QGrams" value-ref="QGrams"/>
+				<entry key="JaccardString" value-ref="JaccardString"/>
+				<entry key="Cosine" value-ref="Cosine"/>
+				<entry key="DiceString" value-ref="DiceString"/>
+				<entry key="Matching" value-ref="Matching"/>
+				<entry key="Overlap" value-ref="Overlap"/>
+			</map>
+		</property>
+		<property name="missingValuesMatch" value="false"/>
+	</bean>
+
+	<bean id="entityValidationService"
+		class="org.openhie.openempi.validation.impl.EntityValidationServiceImpl">
+		<property name="validationRuleMap">
+			<map>
+				<entry key="stringLengthValidationRule" value-ref="stringLengthValidationRule"/>
+				<entry key="nullityValidationRule" value-ref="nullityValidationRule"/>
+				<entry key="regexpValidationRule" value-ref="regexpValidationRule"/>
+				<entry key="rangeValidationRule" value-ref="rangeValidationRule"/>
+				<entry key="booleanValueValidationRule" value-ref="booleanValueValidationRule"/>
+				<entry key="valueSetValidationRule" value-ref="valueSetValidationRule"/>
+			</map> 
+		</property>
+	</bean>
+	
+	<!--  Entity Validation Rules -->
+	<bean id="stringLengthValidationRule"
+		class="org.openhie.openempi.validation.rules.StringLengthValidationRule">
+		<property name="validationRuleName" value="stringLengthValidationRule"/>
+		<property name="validationRuleDisplayName" value="String Length Validation Rule"/>
+	</bean>
+	<bean id="nullityValidationRule"
+		class="org.openhie.openempi.validation.rules.NullityValidationRule">
+		<property name="validationRuleName" value="nullityValidationRule"/>
+		<property name="validationRuleDisplayName" value="Nullity Validation Rule"/>
+	</bean>
+	<bean id="regexpValidationRule"
+		class="org.openhie.openempi.validation.rules.RegexpValidationRule">
+		<property name="validationRuleName" value="regexpValidationRule"/>
+		<property name="validationRuleDisplayName" value="Regular Expression Validation Rule"/>
+	</bean>
+	<bean id="rangeValidationRule"
+		class="org.openhie.openempi.validation.rules.RangeValidationRule">
+		<property name="validationRuleName" value="rangeValidationRule"/>
+		<property name="validationRuleDisplayName" value="Range Validation Rule"/>
+	</bean>
+	<bean id="booleanValueValidationRule"
+		class="org.openhie.openempi.validation.rules.BooleanValueValidationRule">
+		<property name="validationRuleName" value="booleanValueValidationRule"/>
+		<property name="validationRuleDisplayName" value="Boolean Value Validation Rule"/>
+	</bean>	
+	<bean id="valueSetValidationRule"
+		class="org.openhie.openempi.validation.rules.ValueSetValueValidationRule">
+		<property name="validationRuleName" value="valueSetValidationRule"/>
+		<property name="validationRuleDisplayName" value="Value Set Validation Rule"/>
+	</bean>
+
+	<!--  Field Transformation Functions  -->
+	<bean id="Metaphone"
+		class="org.openhie.openempi.transformation.function.MetaphoneFunction">
+		<property name="name" value="Metaphone"/>
+	</bean>
+	<bean id="DoubleMetaphone"
+		class="org.openhie.openempi.transformation.function.DoubleMetaphoneFunction">
+		<property name="name" value="DoubleMetaphone"/>
+	</bean>
+	<bean id="SoundexFunction"
+		class="org.openhie.openempi.transformation.function.SoundexFunction">
+		<property name="name" value="SoundexFunction"/>
+	</bean>
+	<bean id="RefinedSoundex"
+		class="org.openhie.openempi.transformation.function.RefinedSoundexFunction">
+		<property name="name" value="RefinedSoundex"/>
+	</bean>
+	<bean id="NysiisFunction"
+		class="org.openhie.openempi.transformation.function.NysiisFunction">
+		<property name="name" value="NysiisFunction"/>
+	</bean>
+	<bean id="SubstringFunction"
+		class="org.openhie.openempi.transformation.function.SubstringFunction">
+		<property name="name" value="Substring"/>
+	</bean>
+	<bean id="DateTransformationFunction"
+		class="org.openhie.openempi.transformation.function.DateTransformationFunction">
+		<property name="name" value="DateTransformationFunction"/>
+	</bean>
+	<bean id="IdentifierTransformationFunction"
+		class="org.openhie.openempi.transformation.function.IdentifierTransformationFunction">
+		<property name="name" value="IdentifierTransformationFunction"/>
+	</bean>
+
+	<bean id="transformationService"
+		class="org.openhie.openempi.transformation.impl.TransformationServiceImpl">
+		<property name="transformationFunctionTypeMap">
+			<map>
+				<entry key="Metaphone" value-ref="Metaphone"/>
+				<entry key="DoubleMetaphone" value-ref="DoubleMetaphone"/>
+				<entry key="SoundexFunction" value-ref="SoundexFunction"/>
+				<entry key="RefinedSoundex" value-ref="RefinedSoundex"/>
+				<entry key="Nysiis" value-ref="NysiisFunction"/>
+				<entry key="Substring" value-ref="SubstringFunction"/>
+				<entry key="DateTransformationFunction" value-ref="DateTransformationFunction"/>
+				<entry key="IdentifierTransformationFunction" value-ref="IdentifierTransformationFunction"/>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="entityLoaderManager" class="org.openhie.openempi.loader.SpringEntityLoaderManager">
+		<property name="username" value="admin" />
+		<property name="password" value="admin" />
+	</bean>
+	
+	<bean id="reportDownloadService" class="org.openhie.openempi.report.impl.ReportDownloadServiceImpl">
+		<property name="reportFolder" value="reports"/>
+	</bean>
+</beans>

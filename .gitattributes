@@ -1,0 +1,5 @@
+# Ensure all sh files always use LF
+*.sh text eol=lf
+
+# Store war files in GitHub LFS server
+*.war filter=lfs diff=lfs merge=lfs -text

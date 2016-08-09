@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+
+    Copyright (C) 2002-2012 "SYSNET International, Inc."
+    support@sysnetint.com [http://www.sysnetint.com]
+
+    This file is part of OpenEMPI.
+
+    OpenEMPI is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!-- The PIX Manager Actor Connections -->
+
+<Configuration>
+    <StandardConnection name="openempi-pix-manager">
+        <!--The host name of the PIX Manager Server-->
+        <HostName>localhost</HostName>
+        <!--The port for PIX transaction-->
+        <Port>3600</Port>
+        <Identifier name="ReceivingApplication">
+            <NamespaceId>MESA_XREF</NamespaceId>
+        </Identifier>
+        <Identifier name="ReceivingFacility">
+            <NamespaceId>XYZ_HOSPITAL</NamespaceId>
+        </Identifier>
+
+        <!-- pixManagerAdapter - required :
+            The java adapter class that provides the patient data source for this Pix Manager (required).
+            This class must implement org.openhealthexchange.openpixpdq.ihe.IPixManagerAdapter -->
+         <Property name="pixManagerAdapter" value="org.openhie.openempi.openpixpdqadapter.PixManagerAdapter" />  
+         <Property name="storeLogger" value="messageStoreLogger" />
+
+        <!-- Configuration file for each client domains -->
+	    <IncludeFile name="PixPdqClientDomains.xml" />
+    </StandardConnection>
+
+
+</Configuration>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+
+    Copyright (C) 2002-2012 "SYSNET International, Inc."
+    support@sysnetint.com [http://www.sysnetint.com]
+
+    This file is part of OpenEMPI.
+
+    OpenEMPI is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<mpi-config
+	xsi:schemaLocation="http://configuration.openempi.openhie.org/mpiconfig mpi-config.xsd
+	http://configuration.openempi.openhie.org/file-loader file-loader.xsd
+	http://configuration.openempi.openhie.org/basic-blocking basic-blocking.xsd
+	http://configuration.openempi.openhie.org/exact-matching exact-matching.xsd"
+	xmlns="http://configuration.openempi.openhie.org/mpiconfig"
+	xmlns:mpi="http://configuration.openempi.openhie.org/mpiconfig"
+	xmlns:fl="http://configuration.openempi.openhie.org/file-loader"
+	xmlns:bb="http://configuration.openempi.openhie.org/basic-blocking"
+	xmlns:em="http://configuration.openempi.openhie.org/exact-matching"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <global-identifier>
+        <assign-global-identifier>true</assign-global-identifier>
+        <namespace-identifier>2.16.840.1.113883.4.357</namespace-identifier>
+        <universal-identifier>2.16.840.1.113883.4.357</universal-identifier>
+        <universal-identifier-type>hl7</universal-identifier-type>
+    </global-identifier>
+    <custom-fields>
+        <custom-field>
+            <field-name>custom1</field-name>
+            <source-field-name>familyName</source-field-name>
+            <transformation-function>
+                <function-name>DoubleMetaphone</function-name>
+	    </transformation-function>
+        </custom-field>
+        <custom-field>
+            <field-name>custom2</field-name>
+            <source-field-name>givenName</source-field-name>
+            <transformation-function>
+                <function-name>DoubleMetaphone</function-name>
+	    </transformation-function>
+        </custom-field>
+    </custom-fields>
+    <admin-configuration>
+        <file-repository-directory>fileRepository</file-repository-directory>
+        <autostart-pixpdq>false</autostart-pixpdq>
+    </admin-configuration>
+</mpi-config>

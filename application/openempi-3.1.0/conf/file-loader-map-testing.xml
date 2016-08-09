@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+
+    Copyright (C) 2002-2012 "SYSNET International, Inc."
+    support@sysnetint.com [http://www.sysnetint.com]
+
+    This file is part of OpenEMPI.
+
+    OpenEMPI is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+rec-39603-org^Emiily^Musolino^20 Bugden Avenue^^Tempe^17509^CA^19801003^31^4379702874^338425264^3
+rec-62724-org^Kayla^Clarke^21 Gamor Street^St Pauls Lutheran Village^Atl^29565^TN^19810119^30^9700012283^368811455^9
+rec-24257-org^Kane^Ryan^657 Fullwood Street^^Scottsdale^54494^NC^19870824^24^8155364948^692544254^1
+-->
+<file-loader-map
+	xsi:schemaLocation="http://configuration.openempi.openhie.org/fileloadermap fileloadermap.xsd"
+	xmlns="http://configuration.openempi.openhie.org/fileloadermap"
+	xmlns:fl="http://configuration.openempi.openhie.org/fileloadermap"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	delimiter="\^"
+	header-first-line="false">
+	<fields>
+		<field
+			datatype="String"
+			is-identifier="true"
+			identifier-domain-name="IHENA">
+			<column-index>1</column-index>
+			<field-name>identifier</field-name>
+		</field>
+		<field
+			datatype="String"
+			enclosing-character="&quot;">
+			<column-index>2</column-index>
+			<field-name>givenName</field-name>
+		</field>
+		<field
+			datatype="String">
+			<column-index>3</column-index>
+			<field-name>familyName</field-name>
+		</field>
+		<field
+			datatype="String">
+			<column-index>4</column-index>
+			<field-name>address1</field-name>
+		</field>
+		<field
+			datatype="String">
+			<column-index>5</column-index>
+			<field-name>address2</field-name>
+		</field>
+		<field
+			datatype="String">
+			<column-index>6</column-index>
+			<field-name>city</field-name>
+		</field>
+		<field
+			datatype="String">
+			<column-index>7</column-index>
+			<field-name>postalCode</field-name>
+		</field>
+		<field
+			datatype="String">
+			<column-index>8</column-index>
+			<field-name>state</field-name>
+		</field>
+		<field
+			datatype="Date"
+			date-format-string="yyyyMMdd">
+			<column-index>9</column-index>
+			<field-name>dateOfBirth</field-name>
+		</field>
+		<field
+			is-ignored="true">
+			<column-index>10</column-index>
+			<field-name/>
+		</field>
+		<field
+			datatype="String">
+			<column-index>11</column-index>
+			<field-name>phoneNumber</field-name>
+		</field>
+		<field
+			datatype="String">
+			<column-index>12</column-index>
+			<field-name>phoneNumber</field-name>
+		</field>
+		<field
+			is-ignored="true">
+			<column-index>13</column-index>
+			<field-name/>
+		</field>
+	</fields>
+</file-loader-map>

@@ -1,0 +1,21 @@
+version: "2"
+
+services:
+
+  app:
+    # Build application using Dockerfile contained in application subfolder
+    build: ./application
+    # Name image
+    image: openempi-app
+    # Map application container port 8080 to docker port 8080
+    ports:
+      - "8080:8080"
+    # Do not start application container until postgres container is started
+    depends_on:
+      - postgres
+
+  postgres:
+    # Build database using Dockerfile contained in postgres subfolder
+    build: ./postgres
+    # Name image
+    image: openempi-db

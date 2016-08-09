@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+
+    Copyright (C) 2002-2012 "SYSNET International, Inc."
+    support@sysnetint.com [http://www.sysnetint.com]
+
+    This file is part of OpenEMPI.
+
+    OpenEMPI is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
+       default-lazy-init="true">
+
+    <!-- Hibernate SessionFactory -->
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:hibernate.cfg.xml"/>
+        <property name="hibernateProperties">
+            <value>
+                hibernate.dialect=${hibernate.dialect}
+                hibernate.query.substitutions=true 'Y', false 'N'
+                hibernate.cache.use_second_level_cache=true
+                hibernate.show_sql=false
+		hibernate.cache.region.factory_class=net.sf.ehcache.hibernate.SingletonEhCacheRegionFactory
+                hibernate.id.new_generator_mappings=true
+            </value>
+            <!-- hibernate.cache.provider_class=org.hibernate.cache.EhCacheProvider -->
+            <!-- Turn batching off for better error messages under PostgreSQL -->
+            <!-- hibernate.jdbc.batch_size=0 -->
+        </property>
+    </bean>
+
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+
+    <!-- Transaction manager for a single Hibernate SessionFactory (alternative to JTA) -->
+    <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+		<property name="transactionManager" ref="transactionManager"/>
+		<property name="isolationLevelName" value="ISOLATION_READ_UNCOMMITTED"/>
+		<property name="timeout" value="60"/>
+<!--	<property name="propagationBehaviorName" value="PROPAGATION_REQUIRES_NEW"/>-->
+    </bean>
+
+    <bean id="entityDao" class="org.openhie.openempi.entity.dao.orientdb.EntityDaoOrientdb">
+		<property name="entityCacheManager" ref="entityCacheManager" />
+		<property name="connectionManager" ref="connectionManager" />
+    </bean>
+
+    <bean id="connectionManager" class="org.openhie.openempi.entity.dao.orientdb.ConnectionManager">
+		<property name="username" value="${orientdb.username}" />
+		<property name="password" value="${orientdb.password}" />
+		<!-- The storage mode can be local or remote -->
+		<property name="storageMode" value="${orientdb.storageMode}" />
+		<property name="serverUsername" value="${orientdb.serverUsername}" />
+		<property name="serverPassword" value="${orientdb.serverPassword}" />
+		<property name="minPoolConnections" value="${orientdb.minPoolConnections}" />
+		<property name="maxPoolConnections" value="${orientdb.maxPoolConnections}" />
+		<property name="server" value="${orientdb.server}" />
+		<property name="port" value="${orientdb.port}" />
+    </bean>
+
+	<bean id="recordProducer"
+		class="org.openhie.openempi.entity.dao.orientdb.RecordProducerImpl">
+		<property name="entityDao" ref="entityDao"/>
+		<property name="blockSize" value="2000"/>
+	</bean>	
+	
+    <bean id="entityCacheManager"
+		class="org.openhie.openempi.entity.impl.RecordCacheManagerImpl"
+		init-method="initialize" destroy-method="destroy">
+	<property name="identifierDomainDao" ref="identifierDomainDao"/>
+	<property name="userDao" ref="userDao"/>
+        <property name="cacheConfigLocation" value="${OPENEMPI_HOME}/conf/openempiCache.xml"/>
+    </bean>
+    <!-- UniversalDao - can be used when doing standard CRUD - made available 
+        for those who don't mind casting.  If you don't want to cast, look at 
+        'fooDao' below. -->
+    <bean id="universalDao" class="org.openhie.openempi.dao.hibernate.UniversalDaoHibernate">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="lookupDao" class="org.openhie.openempi.dao.hibernate.LookupDaoHibernate">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="userDao" class="org.openhie.openempi.dao.hibernate.UserDaoHibernate">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="roleDao" class="org.openhie.openempi.dao.hibernate.RoleDaoHibernate">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+    
+    <bean id="personDao" class="org.openhie.openempi.dao.hibernate.PersonDaoHibernate">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="identifierDomainDao" class="org.openhie.openempi.dao.hibernate.IdentifierDomainDaoHibernate">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="jobEntryDao" class="org.openhie.openempi.jobqueue.dao.hibernate.JobEntryDaoHibernate">
+        <property name="sessionFactory" ref="sessionFactory"/>  
+    </bean>
+    
+    <bean id="entityDefinitionDao" class="org.openhie.openempi.entity.dao.hibernate.EntityDefinitionDaoHibernate">
+        <property name="sessionFactory" ref="sessionFactory"/>
+	<property name="incrementer" ref="entityIdIncrementer"/>
+    </bean>
+    
+    <bean id="entityIdIncrementer" class="org.springframework.jdbc.support.incrementer.PostgreSQLSequenceMaxValueIncrementer">
+        <property name="dataSource" ref="dataSource" />
+        <property name="incrementerName" value="entity_seq" />
+    </bean>
+
+    <bean id="transactionNumberIncrementer" class="org.springframework.jdbc.support.incrementer.PostgreSQLSequenceMaxValueIncrementer">
+        <property name="dataSource" ref="dataSource" />
+        <property name="incrementerName" value="cluster_seq" />
+    </bean>
+
+    <bean id="personLinkDao" class="org.openhie.openempi.dao.hibernate.PersonLinkDaoHibernate">
+        <property name="sessionFactory" ref="sessionFactory"/>
+	<property name="incrementer" ref="transactionNumberIncrementer"/>
+    </bean>
+    
+    <bean id="reportDao" class="org.openhie.openempi.dao.hibernate.ReportDaoHibernate">
+        <property name="sessionFactory" ref="sessionFactory"/>
+	<property name="maxReportRequestsReturned" value="20"/>
+    </bean>
+        
+    <bean id="userSessionDao" class="org.openhie.openempi.dao.hibernate.UserSessionDaoHibernate">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+    
+    <bean id="auditEventDao" class="org.openhie.openempi.dao.hibernate.AuditEventDaoHibernate">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+    
+    <bean id="messageLogDao" class="org.openhie.openempi.dao.hibernate.MessageLogDaoHibernate">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+    
+    <bean id="dataProfileAttributeDao" class="org.openhie.openempi.dao.hibernate.DataProfileAttributeDaoHibernate">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+</beans>

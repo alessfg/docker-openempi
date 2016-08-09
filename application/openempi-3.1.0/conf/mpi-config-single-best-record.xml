@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+
+    Copyright (C) 2002-2012 "SYSNET International, Inc."
+    support@sysnetint.com [http://www.sysnetint.com]
+
+    This file is part of OpenEMPI.
+
+    OpenEMPI is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<mpi-config
+	xsi:schemaLocation="http://configuration.openempi.openhie.org/mpiconfig mpi-config.xsd
+	http://configuration.openempi.openhie.org/file-loader file-loader.xsd
+	http://configuration.openempi.openhie.org/basic-blocking basic-blocking-hp.xsd
+	http://configuration.openempi.openhie.org/probabilistic-matching probabilistic-matching.xsd
+	http://configuration.openempi.openhie.org/exact-matching exact-matching.xsd
+	http://configuration.openempi.openhie.org/single-best-record.xsd"
+	xmlns="http://configuration.openempi.openhie.org/mpiconfig"
+	xmlns:mpi="http://configuration.openempi.openhie.org/mpiconfig"
+	xmlns:fl="http://configuration.openempi.openhie.org/file-loader"
+	xmlns:bb="http://configuration.openempi.openhie.org/basic-blocking-hp"
+	xmlns:em="http://configuration.openempi.openhie.org/exact-matching"
+	xmlns:pm="http://configuration.openempi.openhie.org/probabilistic-matching"
+	xmlns:sbr="http://configuration.openempi.openhie.org/single-best-record"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <global-identifier>
+        <assign-global-identifier>true</assign-global-identifier>
+        <identifier-domain-name>OpenEMPI</identifier-domain-name>
+        <namespace-identifier>2.16.756.5.30.1.117.200.10.1</namespace-identifier>
+        <universal-identifier>2.16.756.5.30.1.117.200.10.1</universal-identifier>
+        <universal-identifier-type>ISO</universal-identifier-type>
+    </global-identifier>
+<!--
+    <scheduled-tasks>
+    	<scheduled-task schedule-type="schedule-at-fixed-rate" time-unit="seconds">
+    	    <task-name>test</task-name>
+    	    <task-implementation>dataProfiler</task-implementation>
+    	    <initial-delay>30</initial-delay>
+    	    <period>86400</period>
+    	</scheduled-task>
+    </scheduled-tasks>
+-->
+   <bb:basic-blocking entity-name="person">
+        <bb:blocking-rounds>
+            <bb:blocking-round>
+                <bb:blocking-fields>
+                    <bb:blocking-field>
+                        <bb:field-name>familyName</bb:field-name>
+                    </bb:blocking-field>
+                </bb:blocking-fields>
+            </bb:blocking-round>
+            <bb:blocking-round>
+                <bb:blocking-fields>
+                    <bb:blocking-field>
+                        <bb:field-name>givenName</bb:field-name>
+                    </bb:blocking-field>
+                </bb:blocking-fields>
+            </bb:blocking-round>
+        </bb:blocking-rounds>
+        <bb:maximum-block-size>100</bb:maximum-block-size>
+    </bb:basic-blocking>
+    <em:exact-matching entity-name="person">
+        <em:match-rules>
+            <!-- RULE ONE -->
+            <em:match-rule>
+                <em:match-fields>
+                    <em:match-field>
+                        <em:field-name>familyName</em:field-name>
+                        <em:comparator-function>
+                            <function-name>JaroWinkler</function-name>
+                        </em:comparator-function>
+                        <em:match-threshold>0.75</em:match-threshold>
+                    </em:match-field>
+                    <em:match-field>
+                        <em:field-name>givenName</em:field-name>
+                        <em:comparator-function>
+                            <function-name>JaroWinkler</function-name>
+                        </em:comparator-function>
+                        <em:match-threshold>0.75</em:match-threshold>
+                    </em:match-field>
+                </em:match-fields>
+            </em:match-rule>
+        </em:match-rules>
+    </em:exact-matching>
+    <sbr:single-best-record entity-name="person">
+    	<sbr:implementation-name>singleBestRecord</sbr:implementation-name>
+    	<sbr:implementation-description>Simple Rule-based Single Best Record Implementation</sbr:implementation-description>
+    	<sbr:ruleset>
+    		<sbr:rule>
+    			<sbr:field-name>phone</sbr:field-name>
+    			<sbr:condition>not-null</sbr:condition>
+    		</sbr:rule>
+    		<sbr:rule>
+    			<sbr:field-name>address2</sbr:field-name>
+    			<sbr:condition>not-null</sbr:condition>
+    		</sbr:rule>
+    	</sbr:ruleset>
+    </sbr:single-best-record>
+    <admin-configuration>
+        <session-duration>3600</session-duration>
+        <file-repository-directory>fileRepository</file-repository-directory>
+        <autostart-pixpdq>true</autostart-pixpdq>
+        <data-directory>/mnt/sysnet</data-directory>
+    </admin-configuration>
+</mpi-config>

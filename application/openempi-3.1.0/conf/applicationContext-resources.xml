@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+
+    Copyright (C) 2002-2012 "SYSNET International, Inc."
+    support@sysnetint.com [http://www.sysnetint.com]
+
+    This file is part of OpenEMPI.
+
+    OpenEMPI is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+            http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+	<bean id="propertyConfigurer"
+		class="org.openhie.openempi.util.LoggingPropertyPlaceholderConfigurer">
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="locations">
+			<list>
+				<value>file:///${OPENEMPI_HOME}/conf/jdbc.properties</value>
+				<value>classpath:jdbc.properties</value>
+				<value>file:///${OPENEMPI_HOME}/conf/mail.properties</value>
+				<value>classpath:mail.properties</value>
+				<value>classpath:nhin-adapter.properties</value>
+			</list>
+		</property>
+		<property name="properties">
+			<props>
+				<!-- Default value for properties that are optional -->
+				<prop key="assigning-authority-id"></prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="dataSourceDirect"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${jdbc.driverClassName}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+
+	<bean id="pool" class="org.apache.tomcat.dbcp.pool.impl.GenericObjectPool">
+		<property name="minEvictableIdleTimeMillis"><value>300000</value></property>
+		<property name="timeBetweenEvictionRunsMillis"><value>60000</value></property>
+		<property name="maxActive"><value>300</value></property>
+		<property name="maxIdle"><value>30</value></property> 
+	</bean>
+
+	<bean id="dsConnectionFactory" class="org.apache.tomcat.dbcp.dbcp.DataSourceConnectionFactory">
+		<constructor-arg><ref bean="dataSourceDirect"/></constructor-arg>
+	</bean>
+
+	<bean id="poolableConnectionFactory" class="org.apache.tomcat.dbcp.dbcp.PoolableConnectionFactory">
+		<constructor-arg index="0"><ref bean="dsConnectionFactory"/></constructor-arg>
+		<constructor-arg index="1"><ref bean="pool"/></constructor-arg>
+		<constructor-arg index="2"><null/></constructor-arg>
+		<constructor-arg index="3"><null/></constructor-arg>
+		<constructor-arg index="4"><value>false</value></constructor-arg>
+		<constructor-arg index="5"><value>true</value></constructor-arg>
+	</bean>
+
+	<bean id="dataSource" class="org.apache.tomcat.dbcp.dbcp.PoolingDataSource" depends-on="poolableConnectionFactory">
+		<constructor-arg><ref bean="pool"/></constructor-arg>
+	</bean>
+
+</beans>
