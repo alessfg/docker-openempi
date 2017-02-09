@@ -3,6 +3,7 @@
 ## OpenEMPI Version 3.1.0
 
 ## To build a new image with new config
+* get git-lfs https://git-lfs.github.com/ (needed for war file)
 * edit application/openempi-3.1.0/conf/mpi-config.xml, for example
 * build a local docker image openempi-app
 `docker-compose build`
