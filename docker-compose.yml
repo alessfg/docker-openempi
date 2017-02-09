@@ -7,6 +7,7 @@ services:
     build: ./application
     # Name image
     image: openempi-app
+    # image: omonedocker/openempi-app
     # Map application container port 8080 to docker port 8080
     ports:
       - "8080:8080"
@@ -18,4 +19,5 @@ services:
     # Build database using Dockerfile contained in postgres subfolder
     build: ./postgres
     # Name image
+    # image: omonedocker/openempi-db
     image: openempi-db
