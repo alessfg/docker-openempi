@@ -1,4 +1,26 @@
-# Docker Environment for OpenEMPI
+# Docker Image for OpenEMPI
+
+## OpenEMPI Version 3.1.0
+
+## To build a new image with new config
+* edit application/openempi-3.1.0/conf/mpi-config.xml, for example
+* build a local docker image openempi-app
+`docker-compose build`
+* test the new images locally by referring to `openempi-app` in docker-compose
+* after committing the changes, tag the image as such (with a commit label)
+`docker tag openempi-app omonedocker/openempi-app:v3.1.0-214859fe`
+* push tagged image into docker.io
+`docker push omonedocker/openempi-app:v3.1.0-214859fi`
+* use tagged image in docker-compose for dependent services (like profile-d)
+
+## TODO
+* upgrade to 3.3.0c (or the commercial version)
+* add .travis.yml to auto-deploy to AWS ECR (to enable environment specifity)
+* enable multi-node Tomcat code connecting to central OrientDB for production
+* terraform ECS task and services for commercial version if supported
+
+# ---------------------------------------------------------------------------
+# ORIGINAL README
 
 Docker environment for [OpenEMPI] (http://www.openempi.org/), an open source implementation of an Enterprise Master Patient Index.
 
