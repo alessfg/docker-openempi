@@ -19,12 +19,12 @@
 <mpi-config xsi:schemaLocation="http://configuration.openempi.openhie.org/mpiconfig mpi-config.xsd  http://configuration.openempi.openhie.org/file-loader file-loader.xsd  http://configuration.openempi.openhie.org/basic-blocking-hp basic-blocking-hp.xsd  http://configuration.openempi.openhie.org/exact-matching exact-matching.xsd" xmlns="http://configuration.openempi.openhie.org/mpiconfig" xmlns:mpi="http://configuration.openempi.openhie.org/mpiconfig" xmlns:fl="http://configuration.openempi.openhie.org/file-loader" xmlns:bb="http://configuration.openempi.openhie.org/basic-blocking-hp" xmlns:em="http://configuration.openempi.openhie.org/exact-matching" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <global-identifier>
         <assign-global-identifier>true</assign-global-identifier>
-        <identifier-domain-name>OpenEMPI</identifier-domain-name>
-        <namespace-identifier>2.16.756.5.30.1.117.200.10.1</namespace-identifier>
-        <universal-identifier>2.16.756.5.30.1.117.200.10.1</universal-identifier>
-        <universal-identifier-type>ISO</universal-identifier-type>
+        <identifier-domain-name>ECID</identifier-domain-name>
+        <namespace-identifier>ECID</namespace-identifier>
+        <universal-identifier>ECID</universal-identifier>
+        <universal-identifier-type>ECID</universal-identifier-type>
     </global-identifier>
-    <!--<scheduled-tasks>
+<!--<scheduled-tasks>
         <scheduled-task entity-name="person" schedule-type="schedule-at-fixed-rate" time-unit="seconds">
             <task-name>test</task-name>
             <task-implementation>dataProfiler</task-implementation>

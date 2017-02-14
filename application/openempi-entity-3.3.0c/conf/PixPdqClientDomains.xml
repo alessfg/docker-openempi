@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+
+    Copyright (C) 2002-2012 "SYSNET International, Inc."
+    support@sysnetint.com [http://www.sysnetint.com]
+
+    This file is part of OpenEMPI.
+
+    OpenEMPI is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!-- The Domain of Each PIX and PDQ Client -->
+
+<Configuration>
+     <!--To configure each PIX/PDQ client, always use type="domain" -->
+
+     <Identifier type="globalDomain" name="IHE_RED">
+         <NamespaceId>IHERED</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.1000</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>     
+     <Identifier type="domain" name="IHE_GREEN">
+         <NamespaceId>IHEGREEN</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.2000</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>     
+     <Identifier type="domain" name="IHE_BLUE">
+         <NamespaceId>IHEBLUE</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.3000</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>     
+     <Identifier type="domain" name="LOCAL">
+         <NamespaceId>LOCAL</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.3000.1.6</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="HIMSS2005">
+         <NamespaceId>HIMSS2005</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.2005.1.1</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="XREF2005">
+         <NamespaceId>XREF2005</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.2005.1.2</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="NIST">
+         <NamespaceId>NIST</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.2005.3.7</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="NIST2010">
+         <NamespaceId>NIST2010</NamespaceId>
+         <UniversalId>2.16.840.1.113883.3.72.5.9.1</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="NIST2010-2">
+         <NamespaceId>NIST2010-2</NamespaceId>
+         <UniversalId>2.16.840.1.113883.3.72.5.9.2</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="NIST2010-3">
+         <NamespaceId>NIST2010-3</NamespaceId>
+         <UniversalId>2.16.840.1.113883.3.72.5.9.3</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="IHENA">
+         <NamespaceId>IHENA</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.2010.1.2.300</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="IHE LOCAL">
+         <NamespaceId>IHELOCAL</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.2010.1.2.310</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="EHR_Allscripts_Enterprise">
+         <NamespaceId>EHR_Allscripts_Enterprise</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5110</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>     
+     <Identifier type="domain" name="EHR_Allscripts_MyWay">
+         <NamespaceId>EHR_Allscripts_MyWay</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5115</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>     
+     <Identifier type="domain" name="EHR_Allscripts_Professional">
+         <NamespaceId>EHR_Allscripts_Professional</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5120</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>     
+     <Identifier type="domain" name="EHR_Allscripts_SCM">
+         <NamespaceId>EHR_Allscripts_SCM</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5125</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>     
+     <Identifier type="domain" name="OTHER_CareEvolution">
+         <NamespaceId>OTHER_CareEvolution</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5140</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>               
+     <Identifier type="domain" name="EHR_CPSI">
+         <NamespaceId>EHR_CPSI</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5145</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="PACS_Fuji">
+         <NamespaceId>PACS_Fuji</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5160</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="EHR_GMT">
+         <NamespaceId>EHR_GMT</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5175</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="CIS_Healthland">
+         <NamespaceId>HeCI</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5185</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="PACS_INFINITT_1">
+         <NamespaceId>PACS_INFINITT_1</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5200</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="ADT_iNTERFACEWARE_Iguana">
+         <NamespaceId>ADT_iNTERFACEWARE_Iguana</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5205</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="MSG_ROUTER_Lawson">
+         <NamespaceId>MSG_ROUTER_Lawson</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5215</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="CONTENT_CREATOR_MEDecision_NCS">
+         <NamespaceId>CONTENT_CREATOR_MEDecision_NCS</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5220</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="EHR_MIE">
+         <NamespaceId>EHR_MIE</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5240</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="EHR_NexJ">
+         <NamespaceId>EHR_NexJ</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5260</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="EHR_NextGen">
+         <NamespaceId>EHR_NextGen</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5270</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="PHR_NMC">
+         <NamespaceId>PHR_NMC</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5275</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="OTHER_OZ_EHDI">
+         <NamespaceId>OTHER_OZ_EHDI</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5285</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="EHR_SAGE">
+         <NamespaceId>EHR_SAGE</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5300</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="EHR_SIEMENS_0">
+         <NamespaceId>EHR_SIEMENS_0</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5305</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="EHR_SuccessEHS">
+         <NamespaceId>EHR_SuccessEHS</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5310</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>     
+     <Identifier type="domain" name="OTHER_DSV_Pathology">
+         <NamespaceId>OTHER_DSV_Pathology</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5315</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+     <Identifier type="domain" name="OTHER_DSV_Portal">
+         <NamespaceId>OTHER_DSV_Portal</NamespaceId>
+         <UniversalId>1.3.6.1.4.1.21367.13.20.5320</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+     </Identifier>
+
+</Configuration>

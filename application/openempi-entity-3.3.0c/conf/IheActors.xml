@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+
+    Copyright (C) 2002-2012 "SYSNET International, Inc."
+    support@sysnetint.com [http://www.sysnetint.com]
+
+    This file is part of OpenEMPI.
+
+    OpenEMPI is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+ <!--Note: This file is the starting point of All the Actor configuration;
+     all other config files should be linked from here. -->
+
+<!--Each configuration file has a root Configuration tag-->
+<Configuration>
+
+    <!--Defines the configuration of Audit Repository Server for Audit Client-->
+    <ConnectionFile file="AuditRepositoryConnections.xml" />
+    <!--Defines the configuration of local system as PD Supplier-->
+    <ConnectionFile file="PdSupplierConnections.xml" />
+    <!--Defines the configuration of local system as PIX Manager-->
+    <ConnectionFile file="PixManagerConnections.xml" />
+    <!--Defines the configuration of PIX Consumers-->
+    <ConnectionFile file="PixConsumerConnections.xml" />
+    
+    <!--The PIX Manager actor configuration-->
+    <Actor name="pixman" type="PixManager">
+      <Description>OpenEMPI PIX Manager</Description>
+      <Connection type="Server" name="openempi-pix-manager"/>
+	  <IncludeFile name="PixPdqClientDomains.xml" />
+      <!--Define 0 or more PIX Consumers that subscribe to PIX Update Notification -->
+      <!-- Connection type="PixConsumer" connection="swpartners" /-->
+    </Actor>
+
+    <!--=========================================================-->     
+    <!--The PD Supplier actor configuration                      -->
+    <!--=========================================================-->     
+    <Actor name="pdsup" type="PdSupplier">
+      <Description>OpenEMPI PDQ Supplier</Description>
+      <Connection type="Server" name="openempi-pd-supplier" />
+	  <IncludeFile name="PixPdqClientDomains.xml" />
+    </Actor>
+    <!-- Actor name="pdsup_secure" type="PdSupplier">
+      <Description>Secure Patient Demographics Supplier V2</Description>
+      <Connection type="Server" name="misys-secure-pd-supplier" />
+    </Actor-->
+        
+    <!--=========================================================-->     
+    <!--The PIX Manager v3 actor configuration                   -->
+    <!--=========================================================-->     
+    <Actor name="pixmanV3" type="PixManagerV3">
+      <Description>PIX Manager V3</Description>
+      <Identifier name="ReceivingApplication">
+         <UniversalId>1.3.6.1.4.1.21367.13.10.360</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+      </Identifier>
+      <Identifier name="ReceivingFacility">
+         <UniversalId>1.3.6.1.4.1.21367.13.50.5360</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+      </Identifier>
+      <!-- Configuration file for each client domains -->
+	  <IncludeFile name="PixPdqClientDomains.xml" />
+	  <!-- Optional XDS Registry Connection -->
+      <!-- Connection type="XdsRegistry" name="xds-registry-v3"/-->
+    </Actor>
+
+    <!--=========================================================-->     
+    <!--The PDQm Supplier actor configuration                   -->
+    <!--=========================================================-->     
+    <Actor name="pdsupfhir" type="PdSupplierFhir">
+      <Description>Paient Demographics Supplier (PDQm) HL7 FHIR</Description>
+      <Identifier name="ReceivingApplication">
+         <UniversalId>1.3.6.1.4.1.21367.13.10.360</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+      </Identifier>
+      <Identifier name="ReceivingFacility">
+         <UniversalId>1.3.6.1.4.1.21367.13.50.5360</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+      </Identifier>
+      <!-- Configuration file for each client domains -->
+      <IncludeFile name="PixPdqClientDomains.xml" />
+
+      <!--QueryProperties - (PropertySet) optional:
+         This set of properties specifies global characteristics of the PDQ
+         server over this connection.  The allowed parts are:
+             WildcardAfter - (String) optional: Specifies the wildcard value this connection
+         expects at the end of a value.  If this value is not supplied, it defaults to *.
+             WildcardBefore - (String) optional: Specifies the wildcard value this connection
+         expects at the end of a value.   If this value is not supplied, it defaults to *.
+             ContinuationQueryByOpenPIXPDQ - (boolean) optional: If value=true, the continuation
+         query is handled by OpenPIXPDQ, otherwise by pluggable EMPI. If this value is not 
+         supplier, it defaults to true. 
+             ContinuationPointerTimeout - (Long) optional: Specifies the timeout in milliseconds
+         of a continuation pointer.  Defaults to 600000 milliseconds(10 minutes). This property
+         is used only when ContinuationQueryByOpenPIXPDQ is set to true.
+       -->
+      <PropertySet name="QueryProperties">
+        <Entry name="WildcardBefore" value="*"/>
+        <Entry name="WildcardAfter" value="*"/>
+        <Entry name="ContinuationQueryByOpenPIXPDQ" value="true"/>
+        <Entry name="ContinuationPointerTimeout" value="600000"/>
+      </PropertySet>
+      <!--DateTimeFormat -(PropertySet) optional:
+         BirthdateFormat - (String) optional: Specifies the format of birthdate this connection
+         expects for a birthdate field.   If this value is not supplied, it defaults to "yyyyMMdd".
+      -->
+      <PropertySet name="DateTimeFormat">
+        <Entry name="Birthdate" value="yyyyMMdd"/>
+      </PropertySet>
+    </Actor>
+
+    <!--=========================================================-->     
+    <!--The PDQ Supplier v3 actor configuration                   -->
+    <!--=========================================================-->     
+    <Actor name="pdsupV3" type="PdSupplierV3">
+      <Description>Paient Demographics Supplier V3</Description>
+      <Identifier name="ReceivingApplication">
+         <UniversalId>1.3.6.1.4.1.21367.13.10.360</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+      </Identifier>
+      <Identifier name="ReceivingFacility">
+         <UniversalId>1.3.6.1.4.1.21367.13.50.5360</UniversalId>
+         <UniversalIdType>ISO</UniversalIdType>
+      </Identifier>
+      <!-- Configuration file for each client domains -->
+	  <IncludeFile name="PixPdqClientDomains.xml" />
+
+      <!--QueryProperties - (PropertySet) optional:
+         This set of properties specifies global characteristics of the PDQ
+         server over this connection.  The allowed parts are:
+             WildcardAfter - (String) optional: Specifies the wildcard value this connection
+         expects at the end of a value.  If this value is not supplied, it defaults to *.
+             WildcardBefore - (String) optional: Specifies the wildcard value this connection
+         expects at the end of a value.   If this value is not supplied, it defaults to *.
+             ContinuationQueryByOpenPIXPDQ - (boolean) optional: If value=true, the continuation
+         query is handled by OpenPIXPDQ, otherwise by pluggable EMPI. If this value is not 
+         supplier, it defaults to true. 
+             ContinuationPointerTimeout - (Long) optional: Specifies the timeout in milliseconds
+         of a continuation pointer.  Defaults to 600000 milliseconds(10 minutes). This property
+         is used only when ContinuationQueryByOpenPIXPDQ is set to true.
+       -->
+      <PropertySet name="QueryProperties">
+        <Entry name="WildcardBefore" value="*"/>
+        <Entry name="WildcardAfter" value="*"/>
+        <Entry name="ContinuationQueryByOpenPIXPDQ" value="true"/>
+        <Entry name="ContinuationPointerTimeout" value="600000"/>
+      </PropertySet>
+      <!--DateTimeFormat -(PropertySet) optional:
+         BirthdateFormat - (String) optional: Specifies the format of birthdate this connection
+         expects for a birthdate field.   If this value is not supplied, it defaults to "yyyyMMdd".
+      -->
+      <PropertySet name="DateTimeFormat">
+        <Entry name="Birthdate" value="yyyyMMdd"/>
+      </PropertySet>
+    </Actor>
+        
+    <!--=========================================================-->     
+    <!--The PIX Manager actor configuration for notification     -->    
+    <!--=========================================================-->     
+    <!--  
+    <Actor name="pixman_notify" type="PixManager">
+      <Description>Misys PIX Manager for eMPI notification</Description>
+      <Connection type="Server" name="misys-notify-pix-manager"/>
+      <Connection type="XdsRegistry" name="xds-pix-registry"/>
+    </Actor>
+    <Actor name="pixman_notify_secure" type="PixManager">
+      <Description>Misys Secure PIX Manager for eMPI notification</Description>
+      <Connection type="Server" name="misys-secure-notify-pix-manager"/>
+      <Connection type="XdsRegistry" name="secure-xds-pix-registry"/>
+    </Actor>
+    -->
+    
+    <!--=========================================================-->     
+ 	<!-- Audit Record Repository Configuration                   -->
+    <!--=========================================================-->
+
+    <Actor name="auditlog" type="SecureNode">
+		<Description>Audit Record Repository</Description>
+	      	<AuditTrail name="log4j_audittrail" />
+<!--
+		<AuditTrail name="mesa_arr_udp" />	
+		<AuditTrail name="mesa_arr_tls" />
+  -->
+    </Actor>
+	
+ </Configuration>

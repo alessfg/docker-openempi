@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+
+    Copyright (C) 2002-2012 "SYSNET International, Inc."
+    support@sysnetint.com [http://www.sysnetint.com]
+
+    This file is part of OpenEMPI.
+
+    OpenEMPI is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<ehcache name="BlockingCacheHp">
+   <sizeOfPolicy maxDepth="100" maxDepthExceededBehavior="abort"/> 
+
+   <cache name="recordCache.cache"
+        eternal="true"
+        overflowToDisk="false"
+        diskPersistent="false"
+        maxEntriesLocalHeap="1000000">
+    <!-- Tell Enterprise Ehcache to use these parameters.
+        overflowToOffHeap="true"
+        maxBytesLocalOffHeap="10G"
+    -->
+    <!-- Tell BigMemory to use the 'localRestartable' persistence
+    strategy for fast restart (optional). 
+     <persistence strategy="localTempSwap"/> -->
+  </cache>
+
+  <defaultCache
+      maxElementsInMemory="1300000"
+      eternal="true"
+      timeToIdleSeconds="0"
+      timeToLiveSeconds="0"
+      overflowToDisk="false"
+      diskSpoolBufferSizeMB="30"
+      maxElementsOnDisk="32000000"
+      diskPersistent="false"
+      diskExpiryThreadIntervalSeconds="120"
+      memoryStoreEvictionPolicy="LRU"/>
+
+  <diskStore path="java.io.tmpdir"/>
+</ehcache>
